@@ -2,7 +2,6 @@ package com.example;
 
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.*;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,8 +43,8 @@ public class Runner {
     }
 
     @Put("/update")
-    public List<UserDetail> updateUser(){
-        return service.updateUser();
+    public Optional<UserDetail> updateUser(long id){
+        return service.updateUser(id);
     }
 
     @Get(uri="/update/{id}/{name}" , produces = MediaType.TEXT_PLAIN)
@@ -54,13 +53,14 @@ public class Runner {
     }
 
     @Put(uri="/update/body" , produces = MediaType.APPLICATION_JSON)
-    public List<UserDetail> updateUserByRequestBody(@Body @NotNull UserDetail userDetail){
-        System.out.println(userDetail.getId());
-        System.out.println(userDetail.getName());
+    public List<UserDetail> updateUserByRequestBody(@Body UserDetail userDetail){
+      //  todo ensuring that id and name is not null
         return service.updateUserNameById(userDetail.getId(), userDetail.getName());
     }
-    @Post("/delete")
-    public List<UserDetail> deleteUser(){
-        return service.delete();
+    @Post("/delete/{id}")
+    public void deleteUser(@PathVariable Long id){
+        service.delete(id);
     }
 }
+
+// TOdo seperate unit tests and Integration test

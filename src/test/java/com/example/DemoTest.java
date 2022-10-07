@@ -2,7 +2,6 @@ package com.example;
 
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpStatus;
-import io.micronaut.http.annotation.Body;
 import io.micronaut.http.client.HttpClient;
 import io.micronaut.http.client.annotation.Client;
 import io.micronaut.runtime.EmbeddedApplication;
@@ -13,6 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -20,6 +20,7 @@ import static org.mockito.Mockito.when;
 @MicronautTest
 class DemoTest {
 
+   // todo client,inject ,embedded should not be used
     @Inject
     @Client("/crud")
     HttpClient client;
@@ -70,20 +71,18 @@ class DemoTest {
 
     @Test
     void testUpdatedUser(){
-      //  String username = "Singh";
-//        Optional<UserDetail> optional = repo.findById(1L);
-//        UserDetail user1 = optional.get();
-//        user1.setName(username);
-//        repo.update(user1);
-        runner.save();
-        Assertions.assertEquals("New Name" , runner.updateUser().get(0).getName());
+        UserDetail user = runner.save();
+        System.out.println(user.getId());
+        Optional<UserDetail> user1 = runner.updateUser(user.getId());
+        Assertions.assertEquals("New Name" ,user1.get().getName());
     }
 
     @Test
     void testDeleteUser(){
-        Long id = 1L;
-          runner.deleteUser();
-          Assertions.assertEquals(List.of(),service.findById(id).stream().toList());
+      //  Long id = 1L;
+        UserDetail userDetail = runner.save();
+          runner.deleteUser(userDetail.getId());
+          Assertions.assertEquals(List.of(),service.findById(userDetail.getId()).stream().toList());
     }
 
     @Test
@@ -99,10 +98,8 @@ class DemoTest {
     @Test
     void testUpdateWithBody(){
         UserDetail user = new UserDetail("Last Name Singh");
-        System.out.println(user.getId());
         UserDetail user1 = runner.save();
-        System.out.println(user1.getId());
-        System.out.println(user1.getName());
+        user.setId(user1.getId());
         var request = HttpRequest.PUT("/update/body" , user);
         var response = client.toBlocking().exchange(request);
         System.out.println(response.getBody());

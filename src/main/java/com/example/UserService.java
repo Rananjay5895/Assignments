@@ -1,5 +1,6 @@
 package com.example;
 
+import com.example.excp.CustomException;
 import jakarta.inject.Singleton;
 
 import java.util.List;
@@ -23,21 +24,22 @@ public class UserService {
         return repo.findAll();
     }
 
-    public List<UserDetail> updateUser() {
+    public Optional<UserDetail> updateUser(Long id) {
         UserDetail userDetail = null;
-        Optional<UserDetail> user = repo.findById(1L);
+        Optional<UserDetail> user = repo.findById(id);
         if(user.isPresent()) {
             userDetail = user.get();
+            System.out.println(userDetail.getName());
         }
-        else throw new RuntimeException("user not available");
+        else throw new CustomException("user not available");
         userDetail.setName("New Name");
-        repo.update(userDetail);
-        return repo.findAll();
+        UserDetail user12 = repo.update(userDetail);
+        System.out.println(user12.toString());
+        return repo.findById(id);
     }
 
-    public List<UserDetail> delete(){
-        repo.deleteById(1L);
-        // todo override the findall to have return type of list
+    public List<UserDetail> delete(Long id){
+        repo.deleteById(id);
         return repo.findAll();
     }
 
@@ -45,10 +47,9 @@ public class UserService {
         return repo.findById(id);
     }
 
-    public List<UserDetail> updateUserNameById(Long id, String name) {
+    public List<UserDetail> updateUserNameById(long id, String name) {
 
-        UserDetail user = repo.findById(id).orElseThrow(()-> new RuntimeException("user not present"));
-     //   List<UserDetail> user1 = repo.findAll();
+        UserDetail user = repo.findById(id).orElseThrow(()-> new CustomException("user not present"));
         user.setName(name);
         repo.update(user);
         return repo.findAll();
